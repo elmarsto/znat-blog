@@ -26,6 +26,9 @@
           };
           default = pkgs.mkShell {
             name = "znat";
+            shellHook = ''
+              set -a; source .env; set +a
+            '';
             packages = with pkgs;
               [
                 age

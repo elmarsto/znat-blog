@@ -37,8 +37,14 @@ serve:
 deploy:
     #!/usr/bin/env bash
     set -x
-    docker build . -t "${TF_VAR_img}:latest"
     terraform apply
-    ID=$(terraform output -json | jaq '.amplify_app_id')
-    aws amplify start-deployment --app-id $ID --branch-name main
+    ID=$(terraform output -json | jaq -r '.amplify_app_id.value')
+    TAG=$(terraform output -json | jaq -r '.ecr_container_url.value')
+    REGION=$(terraform output -json | jaq -r '.region.value')
+    ECR_ROOT="${TAG%%/*}"
+    aws ecr get-login-password --region $REGION | docker login --username AWS --password-stdin $ECR_ROOT
+    docker build . -t "$TAG"
+    docker push "$TAG"
+
+
 

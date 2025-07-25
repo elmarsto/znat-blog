@@ -2,3 +2,5 @@
 /.env
 *.tfstate
 *.tfplan
+*.backup
+/.terraform
