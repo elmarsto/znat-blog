@@ -14,6 +14,10 @@ setup:
     terraform init
     @echo "edit your .env file and when it looks correct, run `just deploy`"
 
+# Enter the development shell
+shell:
+    nix develop
+
 # Decrypt .env.enc as .env
 decrypt:
     sops decrypt --filename-override .env .env.enc > .env
@@ -24,7 +28,7 @@ encrypt:
     sops encrypt .env > .env.enc
     sops encrypt terraform.tfstate > terraform.tfstate.enc
 
-# watch for changes, hot reload, show browser
+# watce for changes, hot reload, show browser
 serve:
     xdg-open https://localhost:1111 &
     zola serve
