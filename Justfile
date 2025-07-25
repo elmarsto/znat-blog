@@ -33,6 +33,7 @@ serve:
 deploy:
     #!/usr/bin/env bash
     set -x
+    docker build . -t "${TF_VAR_img}:latest"
     terraform apply
     ID=$(terraform output -json | jaq '.amplify_app_id')
     aws amplify start-deployment --app-id $ID --branch-name main

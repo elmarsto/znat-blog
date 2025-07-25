@@ -9,33 +9,37 @@ terraform {
 }
 
 provider "aws" {
-  region = var.aws_region
+  region = var.region
 }
 
-variable "aws_region" {
+variable "region" {
   description = "AWS region"
   type        = string
-  default     = "ca-central-1"
 }
 
-variable "repository_url" {
+variable "img" {
+  description = "Docker image name"
+  type        = string
+}
+
+variable "repo" {
   description = "GitHub repository URL"
   type        = string
 }
 
-variable "github_access_token" {
+variable "gh_pat" {
   description = "GitHub personal access token"
   type        = string
   sensitive   = true
 }
 
-variable "domain_name" {
+variable "domain" {
   description = "Domain name"
   type        = string
 }
 
 resource "aws_iam_role" "amplify_role" {
-  name = "blog-role"
+  name = "znat-role"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -52,7 +56,7 @@ resource "aws_iam_role" "amplify_role" {
 }
 
 resource "aws_iam_role_policy" "amplify_policy" {
-  name = "blog-policy"
+  name = "znat-policy"
   role = aws_iam_role.amplify_role.id
 
   policy = jsonencode({
@@ -71,44 +75,38 @@ resource "aws_iam_role_policy" "amplify_policy" {
   })
 }
 
-# 1. Create an ECR Repository (if it doesn't exist)
 resource "aws_ecr_repository" "builder" {
-  name                 = var.build_container
-  image_tag_mutability = "MUTABLE"       # or "IMMUTABLE" - consider best practices
+  name                 = var.img
+  image_tag_mutability = "MUTABLE"
 }
 
-# 2. Get Authentication Data to authenticate Docker with ECR
 data "aws_ecr_authorization_token" "ecr_token" {}
 
-# 3.  Local provider to interact with Docker on your machine
 provider "docker" {
-  host = "unix:///var/run/docker.sock" # For Linux. May vary on other OS.
+  host = "unix:///var/run/docker.sock"
 }
 
-data "docker_registry_image" "builder_image" {
-  name = "${var.build_container}:latest" # The tag you want to push
+data "docker_registry_image" "builder" {
+  name = "${var.img}:latest"
 }
 
-# 5. Tag the Docker Image with the ECR Repository URI
-resource "docker_image" "builder_image" {
+resource "docker_image" "builder" {
   name = "${aws_ecr_repository.builder.repository_url}:latest"
-  image_name = "${var.build_container}:latest"
+  image_name = "${var.img}:latest"
   depends_on = [
-    data.docker_registry_image.builder_image
+    data.docker_registry_image.builder
   ]
 }
-# 6. Push the Docker Image to ECR
-resource "null_resource" "push_image" {
+
+resource "null_resource" "builder" {
   triggers = {
-    image_id = data.docker_registry_image.builder_image.id
+    image_id = data.docker_registry_image.builder.id
   }
 
   provisioner "local-exec" {
     command = <<EOF
       docker login -u AWS -p "${data.aws_ecr_authorization_token.ecr_token.proxy_password}" "${data.aws_ecr_authorization_token.ecr_token.proxy_endpoint}"
-      TAG="${aws_ecr_repository.builder.repository_url}:latest"
-      docker build . -t $TAG
-      docker push $TAG
+      docker push "${aws_ecr_repository.builder.repository_url}:latest"
     EOF
 
     environment = {
@@ -116,32 +114,31 @@ resource "null_resource" "push_image" {
       AWS_SECRET_ACCESS_KEY = data.aws_ecr_authorization_token.ecr_token.authorization_token
     }
 
-    on_failure = "fail" # Stop if the push fails
-    depends_on = [docker_image.builder_image] # Ensure the image is tagged first
+    on_failure = "fail"
+    depends_on = [docker_image.builder]
   }
 }
 
-
-resource "aws_amplify_app" "blog" {
-  name       = "blog"
-  repository = var.repository_url
+resource "aws_amplify_app" "znat" {
+  name       = "znat-app"
+  repository = var.repo
   iam_service_role_arn = aws_iam_role.amplify_role.arn
-  access_token = var.github_access_token
-  environment_variables: {
-    _CUSTOM_IMAGE: "${aws_acct}.dkr.ecr.${aws_region}.amazonaws.com/${build_container}:latest"
+  access_token = var.gh_pat
+  environment_variables = {
+    _CUSTOM_IMAGE: "${aws_ecr_repository.builder.respository_url}:latest"
   }
 }
 
 resource "aws_amplify_branch" "main" {
-  app_id      = aws_amplify_app.blog.id
+  app_id      = aws_amplify_app.znat.id
   branch_name = "main"
   enable_auto_build = true
 }
 
 resource "aws_amplify_domain_association" "domain" {
   count       = 1
-  app_id      = aws_amplify_app.blog.id
-  domain_name = var.domain_name
+  app_id      = aws_amplify_app.znat.id
+  domain_name = var.domain
 
   sub_domain {
     branch_name = aws_amplify_branch.main.branch_name
@@ -149,33 +146,24 @@ resource "aws_amplify_domain_association" "domain" {
   }
 }
 
-
-
-output "repository_url" {
-  value = aws_ecr_repository.example.repository_url
+output "ecr_container_url" {
+  value = "${aws_ecr_repository.builder.repository_url}:latest"
   description = "The URL of the ECR repository containing the build container image"
 }
 
-
-output "ecr_image_name" {
-  value = "${aws_ecr_repository.example.repository_url}:latest"
-  description = "The full build container image name in ECR."
-}
-
-
 output "amplify_app_id" {
   description = "Amplify App ID"
-  value       = aws_amplify_app.blog.id
+  value       = aws_amplify_app.znat.id
 }
 
 output "amplify_app_arn" {
   description = "Amplify App ARN"
-  value       = aws_amplify_app.blog.arn
+  value       = aws_amplify_app.znat.arn
 }
 
 output "app_url" {
   description = "The site URL"
-  value       = "https://${var.domain_name}"
+  value       = "https://${var.domain}"
 }
 
 

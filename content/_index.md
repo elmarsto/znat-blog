@@ -13,7 +13,7 @@ name = "Firstname Lastname"
 bio = ""
 avatar = "img/logo.svg"
 links = [
-    { name = "Feed", icon = "rss", url = "https://www.yourblog.net/posts/feed.xml" },
+    { name = "Feed", icon = "rss", url = "/posts/feed.xml" },
 ]
 
 # Show a few recent posts in home page
