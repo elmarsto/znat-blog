@@ -81,15 +81,6 @@ resource "aws_ecr_repository_policy" "builder" {
   })
 }
 
-
-# resource "docker_image" "builder" {
-#   name = "${aws_ecr_repository.builder.repository_url}:latest"
-#   build {
-#     context = "."
-#     tag     = ["${var.img}:latest", "${aws_ecr_repository.builder.repository_url}:latest"]
-#   }
-# }
-
 resource "aws_amplify_app" "znat" {
   name       = "znat-app"
   repository = var.repo
@@ -105,17 +96,16 @@ resource "aws_amplify_branch" "main" {
   enable_auto_build = true
 }
 
-# resource "aws_amplify_domain_association" "domain" {
-#   count       = 1
-#   app_id      = aws_amplify_app.znat.id
-#   domain_name = var.domain
-#
-#   sub_domain {
-#     branch_name = aws_amplify_branch.main.branch_name
-#     prefix      = "www"
-#   }
-# }
-#
+resource "aws_amplify_domain_association" "domain" {
+  count       = 1
+  app_id      = aws_amplify_app.znat.id
+  domain_name = var.domain
+
+  sub_domain {
+    branch_name = aws_amplify_branch.main.branch_name
+    prefix      = "www"
+  }
+}
 
 output "ecr_container_url" {
   value       = "${aws_ecr_repository.builder.repository_url}:latest"
