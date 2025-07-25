@@ -1,0 +1,13 @@
+version: 1
+frontend:
+  phases:
+    preBuild:
+      commands:
+        - git submodule update --init --recursive
+    build:
+      commands:
+        - nix develop .#ci --command zola build
+  artifacts:
+    baseDirectory: public/
+    files:
+      - "**/*"

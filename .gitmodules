@@ -1,0 +1,6 @@
+[submodule "scripts/release"]
+	path = scripts/release
+	url = https://github.com/welpo/release.git
+[submodule "themes/serene"]
+	path = themes/serene
+	url = https://github.com/isunjn/serene

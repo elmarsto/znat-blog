@@ -1,0 +1,38 @@
+pre-commit:
+  parallel: true
+  commands:
+    markdown:
+      glob: "*.md"
+      run: mdl {staged_files}
+      stage_fixed: true
+    just:
+      glob: "{Justfile,.justfile,*.just}"
+      run: just --unstable --fmt
+      stage_fixed: true
+    yaml:
+      glob: "{*.yaml, *.yml}"
+      run: yamllint --no-warnings -d relaxed {staged_files}
+      stage_fixed: true
+    action:
+      glob: ".github/workflows/{*.yaml, *.yml}"
+      run: actionlint {staged_files}
+      stage_fixed: true
+    toml:
+      glob: "*.toml"
+      run: toml-sort -i {staged_files}
+      stage_fixed: true
+    terraform:
+      glob: "*.tf"
+      run: |
+        terraform fmt { staged_files }
+        tflint --minimum-failure-severity=notice --config .tflint.hcl
+      stage_fixed: true
+    nix:
+      glob: "*.nix"
+      run: alejandra {staged_files}
+      stage_fixed: true
+
+commit-msg:
+  commands:
+    commitlint:
+      run: commitlint --edit {1}

@@ -1,0 +1,4 @@
+/public
+/.env
+*.tfstate
+*.tfplan
