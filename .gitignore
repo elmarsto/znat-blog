@@ -1,6 +1,6 @@
 /public
 /.env
-*.tfstate
 *.tfplan
+*.tfstate
 *.backup
 /.terraform

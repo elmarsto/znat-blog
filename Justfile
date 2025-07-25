@@ -45,6 +45,7 @@ deploy:
     aws ecr get-login-password --region $REGION | docker login --username AWS --password-stdin $ECR_ROOT
     docker build . -t "$TAG"
     docker push "$TAG"
+    just encrypt
 
 
 
