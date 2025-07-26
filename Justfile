@@ -33,19 +33,16 @@ serve:
     xdg-open https://localhost:1111 &
     zola serve
 
+
 # Run this when you want to redeploy with changes to AWS, remembering that most deploys don't need this & happen automatically upon `git push` to `main`
 deploy:
     #!/usr/bin/env bash
-    set -x
-    terraform apply
-    ID=$(terraform output -json | jaq -r '.amplify_app_id.value')
+    set -ex
+    DOMAIN=`url-parser --url $(yq '.base_url' {{justfile_directory()}}/config.toml) host`
+    terraform apply -var "domain=${DOMAIN}"
     TAG=$(terraform output -json | jaq -r '.ecr_container_url.value')
-    REGION=$(terraform output -json | jaq -r '.region.value')
-    ECR_ROOT="${TAG%%/*}"
-    aws ecr get-login-password --region $REGION | docker login --username AWS --password-stdin $ECR_ROOT
+    aws ecr get-login-password --region ${TF_VAR_region} | docker login --username AWS --password-stdin "${TAG%%/*}"
     docker build . -t "$TAG"
     docker push "$TAG"
     just encrypt
-
-
-
+    git add terraform.tfstate.enc .env.enc

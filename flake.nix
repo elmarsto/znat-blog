@@ -15,8 +15,8 @@
           config.allowUnfreePredicate = pkg: true;
         };
         buildPackages = with pkgs; [
-          just
           zola
+          yq-go
         ];
       in {
         devShells = {
@@ -50,7 +50,9 @@
                 terraform
                 tflint
                 toml-sort
+                url-parser
                 yamllint
+                yq-go
                 zola
               ]
               ++ buildPackages;

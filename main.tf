@@ -20,7 +20,6 @@ provider "docker" {
   host = "unix:///var/run/docker.sock"
 }
 
-
 variable "region" {
   description = "AWS region"
   type        = string
@@ -45,6 +44,7 @@ variable "gh_pat" {
 variable "domain" {
   description = "Domain name"
   type        = string
+  default     = null
 }
 
 resource "aws_ecr_repository" "builder" {
@@ -97,7 +97,7 @@ resource "aws_amplify_branch" "main" {
 }
 
 resource "aws_amplify_domain_association" "domain" {
-  count       = 1
+  count       = var.domain != null ? 1 : 0
   app_id      = aws_amplify_app.znat.id
   domain_name = var.domain
 
@@ -111,25 +111,3 @@ output "ecr_container_url" {
   value       = "${aws_ecr_repository.builder.repository_url}:latest"
   description = "The URL of the ECR repository containing the build container image"
 }
-
-output "amplify_app_id" {
-  description = "Amplify App ID"
-  value       = aws_amplify_app.znat.id
-}
-
-output "amplify_app_arn" {
-  description = "Amplify App ARN"
-  value       = aws_amplify_app.znat.arn
-}
-
-output "app_url" {
-  description = "The site URL"
-  value       = "https://www.${var.domain}/"
-}
-
-output "region" {
-  description = "The AWS Region"
-  value = var.region
-}
-
-
