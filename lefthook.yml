@@ -6,7 +6,7 @@ pre-commit:
       run: zola check
     markdown:
       glob: "*.md"
-      run: mdl {staged_files}
+      run: mdformat {staged_files}
       stage_fixed: true
     just:
       glob: "{Justfile,.justfile,*.just}"

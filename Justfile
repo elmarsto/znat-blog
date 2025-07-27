@@ -10,6 +10,7 @@ setup:
     -just decrypt 2>/dev/null
     -git secrets --install -f 2>/dev/null
     -git secrets --register-aws
+    -git secrets --add 'ghp_([A-Z0-9]+)'
     -tflint --init
     -terraform init
     -lefthook install -f
