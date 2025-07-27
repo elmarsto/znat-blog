@@ -2,7 +2,7 @@ pre-commit:
   parallel: true
   commands:
     check:
-      glob: "content/**/*.md"
+      glob: "*.md"
       run: zola check
     # markdown: # TODO: write mdformat plugin to handle TOML frontmatter
     #   glob: "*.md"
