@@ -45,7 +45,7 @@
                 jaq
                 jujutsu
                 lefthook
-                mdformat
+                #mdformat
                 moreutils
                 sops
                 terraform

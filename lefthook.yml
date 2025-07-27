@@ -4,10 +4,10 @@ pre-commit:
     check:
       glob: "content/**/*.md"
       run: zola check
-    markdown:
-      glob: "*.md"
-      run: mdformat {staged_files}
-      stage_fixed: true
+    # markdown: # TODO: write mdformat plugin to handle TOML frontmatter
+    #   glob: "*.md"
+    #   run: mdformat {staged_files}
+    #   stage_fixed: true
     just:
       glob: "{Justfile,.justfile,*.just}"
       run: just --unstable --fmt
