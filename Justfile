@@ -6,7 +6,6 @@ list:
 
 # Run this once per clone of repo
 setup:
-    #!/usr/bin/env bash
     git submodule update --init --recursive
     just decrypt
     lefthook install
@@ -20,17 +19,17 @@ shell:
 
 # Decrypt .env.enc as .env
 decrypt:
-    sops decrypt --filename-override .env .env.enc > .env
-    sops decrypt terraform.tfstate.enc > terraform.tfstate
+    -sops decrypt --filename-override .env .env.enc > .env
+    -sops decrypt terraform.tfstate.enc > terraform.tfstate
 
 # Encrypt .env as .env.enc
 encrypt:
-    sops encrypt .env > .env.enc
-    sops encrypt terraform.tfstate > terraform.tfstate.enc
+    -sops encrypt .env > .env.enc && git add .env.enc
+    -sops encrypt terraform.tfstate > terraform.tfstate.enc && git add terraform.tfstate.enc
 
 # watce for changes, hot reload, show browser
 serve:
-    xdg-open https://localhost:1111 &
+    -xdg-open https://localhost:1111 &
     zola serve
 
 
@@ -45,4 +44,3 @@ deploy:
     docker build . -t "$TAG"
     docker push "$TAG"
     just encrypt
-    git add terraform.tfstate.enc .env.enc
