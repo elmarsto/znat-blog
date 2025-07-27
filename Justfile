@@ -37,10 +37,12 @@ serve:
 deploy:
     #!/usr/bin/env bash
     set -ex
+    trap 'echo "Exit status $? at line $LINENO from: $BASH_COMMAND"' ERR
     DOMAIN=`url-parser --url $(yq '.base_url' {{justfile_directory()}}/config.toml) host`
     terraform apply -var "domain=${DOMAIN}"
+    just encrypt
     TAG=$(terraform output -json | jaq -r '.ecr_container_url.value')
     aws ecr get-login-password --region ${TF_VAR_region} | docker login --username AWS --password-stdin "${TAG%%/*}"
     docker build . -t "$TAG"
     docker push "$TAG"
-    just encrypt
+
