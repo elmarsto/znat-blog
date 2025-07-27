@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en">
+	<title>Blog Title</title>
+	<subtitle>Blog</subtitle>
+	<link href="https://www.yourblog.net/feed.xml" rel="self" type="application/atom+xml"/>
+    <link href="https://www.yourblog.net"/>
+	<updated>2025-07-22T00:00:00+00:00</updated>
+	<id>https://www.yourblog.net/feed.xml</id>
+	<entry xml:lang="en">
+		<title>Hello World</title>
+		<published>2025-07-22T00:00:00+00:00</published>
+		<updated>2025-07-22T00:00:00+00:00</updated>
+		<link href="https://www.yourblog.net/posts/hello-world/" type="text/html"/>
+		<id>https://www.yourblog.net/posts/hello-world/</id>
+		<content type="html">&lt;h2 id=&quot;hello-world-again&quot;&gt;Hello world again!&lt;&#x2F;h2&gt;
+</content>
+	</entry>
+</feed>
