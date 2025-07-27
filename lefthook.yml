@@ -31,6 +31,9 @@ pre-commit:
       glob: "*.nix"
       run: alejandra {staged_files}
       stage_fixed: true
+    secrets:
+      glob: "*"
+      run: git secrets --scan {staged_files}
 
 commit-msg:
   commands:
