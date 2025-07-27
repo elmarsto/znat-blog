@@ -1,0 +1,20 @@
+name: Gate
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+jobs:
+  git-secrets:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Git Secrets setup
+        run: sudo apt-get install -y git-secrets
+      - name: Install & configure Git Secrets
+        run: |
+          git secrets --install
+          git secrets --register-aws
+      - name: Run Git Secrets
+        run: git secrets --scan
