@@ -16,7 +16,7 @@
         };
         buildPackages = with pkgs; [
           zola
-          yq-go
+          git-cliff
         ];
       in {
         devShells = {

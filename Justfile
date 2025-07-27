@@ -8,9 +8,11 @@ list:
 setup:
     git submodule update --init --recursive
     just decrypt
-    lefthook install
+    git secrets --install
+    git secrets --register-aws
     tflint --init
     terraform init
+    lefthook install
     @echo "edit your .env file and when it looks correct, run `just deploy`"
 
 # Enter the development shell
