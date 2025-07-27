@@ -29,7 +29,7 @@ encrypt:
 
 # watce for changes, hot reload, show browser
 serve:
-    -xdg-open https://localhost:1111 &
+    -xdg-open http://localhost:1111 &
     zola serve
 
 
