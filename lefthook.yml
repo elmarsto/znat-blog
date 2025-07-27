@@ -1,6 +1,9 @@
 pre-commit:
   parallel: true
   commands:
+    check:
+      glob: "content/**/*.md"
+      run: zola check
     markdown:
       glob: "*.md"
       run: mdl {staged_files}
