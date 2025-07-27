@@ -28,6 +28,7 @@
             name = "znat";
             shellHook = ''
               set -a; source .env; set +a
+              eval "$(direnv hook bash)"
             '';
             packages = with pkgs;
               [

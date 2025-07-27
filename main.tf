@@ -20,6 +20,11 @@ provider "docker" {
   host = "unix:///var/run/docker.sock"
 }
 
+variable "app_name" {
+  description = "AWS Amplify app name"
+  type        = string
+}
+
 variable "region" {
   description = "AWS region"
   type        = string
@@ -82,7 +87,7 @@ resource "aws_ecr_repository_policy" "builder" {
 }
 
 resource "aws_amplify_app" "znat" {
-  name       = "znat-app"
+  name       = var.app_name
   repository = var.repo
   access_token = var.gh_pat
   environment_variables = {
